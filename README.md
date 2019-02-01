@@ -1,4 +1,4 @@
-# GitHub Action for labeling approved pull requests
+# Label approved pull requests
 
 This GitHub Action applies a label of your choice to pull requests that reach a specified number of approvals. For teams using [Pull Reminders](https://pullreminders.com), this action can be used to exclude approved pull requests from reminders.
 
