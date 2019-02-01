@@ -1,7 +1,7 @@
 FROM debian:9.6-slim
 
 LABEL "com.github.actions.name"="Label approved pull requests"
-LABEL "com.github.actions.description"="Label pull requests that are approved"
+LABEL "com.github.actions.description"="Auto-label pull requests that have a specified number of approvals"
 LABEL "com.github.actions.icon"="tag"
 LABEL "com.github.actions.color"="gray-dark"
 
