@@ -24,7 +24,7 @@ action "Label when approved" {
 
 ## Demo
 
-<img src="https://github.com/pullreminders/label-when-approved-action/raw/master/docs/images/demo.png" width="540">
+<img src="https://github.com/pullreminders/label-when-approved-action/raw/master/docs/images/example.png" width="540">
 
 
 ## License
