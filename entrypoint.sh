@@ -6,7 +6,7 @@ if [[ -z "$GITHUB_TOKEN" ]]; then
   exit 1
 fi
 
-if [[ -z "$GITHUB_EVENT_NAME" ]]; then
+if [[ -z "$GITHUB_REPOSITORY" ]]; then
   echo "Set the GITHUB_REPOSITORY env variable."
   exit 1
 fi
@@ -49,8 +49,16 @@ label_when_approved() {
         -H "${API_HEADER}" \
         -X POST \
         -H "Content-Type: application/json" \
-        -d "{\"labels\":[\"${LABEL_NAME}\"]}" \
+        -d "{\"labels\":[\"${ADD_LABEL}\"]}" \
         "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
+
+      if [[ -n "$REMOVE_LABEL" ]]; then
+          curl -sSL \
+            -H "${AUTH_HEADER}" \
+            -H "${API_HEADER}" \
+            -X DELETE \
+            "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
+      fi
 
       break
     fi
