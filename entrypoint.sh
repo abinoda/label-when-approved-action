@@ -61,5 +61,4 @@ if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
   label_when_approved
 else
   echo "Ignoring event ${action}/${state}"
-  exit 78
 fi
