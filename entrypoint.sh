@@ -6,7 +6,7 @@ if [[ -z "$GITHUB_TOKEN" ]]; then
   exit 1
 fi
 
-if [[ -z "$GITHUB_EVENT_NAME" ]]; then
+if [[ -z "$GITHUB_REPOSITORY" ]]; then
   echo "Set the GITHUB_REPOSITORY env variable."
   exit 1
 fi
@@ -44,13 +44,27 @@ label_when_approved() {
     if [[ "$approvals" == "$APPROVALS" ]]; then
       echo "Labeling pull request"
 
+      addLabel=$ADD_LABEL
+      if [[ -n "$LABEL_NAME" ]]; then
+        echo "Plase define the ADD_LABEL variable instead of the deprecated LABEL_NAME."
+        addLabel=$LABEL_NAME
+      fi
+
       curl -sSL \
         -H "${AUTH_HEADER}" \
         -H "${API_HEADER}" \
         -X POST \
         -H "Content-Type: application/json" \
-        -d "{\"labels\":[\"${LABEL_NAME}\"]}" \
+        -d "{\"labels\":[\"${addLabel}\"]}" \
         "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
+
+      if [[ -n "$REMOVE_LABEL" ]]; then
+          curl -sSL \
+            -H "${AUTH_HEADER}" \
+            -H "${API_HEADER}" \
+            -X DELETE \
+            "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
+      fi
 
       break
     fi
