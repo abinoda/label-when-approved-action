@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -e
 
 if [[ -z "$GITHUB_TOKEN" ]]; then
   echo "Set the GITHUB_TOKEN env variable."
@@ -13,6 +13,17 @@ fi
 
 if [[ -z "$GITHUB_EVENT_PATH" ]]; then
   echo "Set the GITHUB_EVENT_PATH env variable."
+  exit 1
+fi
+
+addLabel=$ADD_LABEL
+if [[ -n "$LABEL_NAME" ]]; then
+  echo "Warning: Plase define the ADD_LABEL variable instead of the deprecated LABEL_NAME."
+  addLabel=$LABEL_NAME
+fi
+
+if [[ -z "$addLabel" ]]; then
+  echo "Set the ADD_LABEL or the LABEL_NAME env variable."
   exit 1
 fi
 
@@ -43,12 +54,6 @@ label_when_approved() {
 
     if [[ "$approvals" == "$APPROVALS" ]]; then
       echo "Labeling pull request"
-
-      addLabel=$ADD_LABEL
-      if [[ -n "$LABEL_NAME" ]]; then
-        echo "Plase define the ADD_LABEL variable instead of the deprecated LABEL_NAME."
-        addLabel=$LABEL_NAME
-      fi
 
       curl -sSL \
         -H "${AUTH_HEADER}" \
