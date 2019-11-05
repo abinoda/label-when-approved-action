@@ -43,7 +43,7 @@ label_when_approved() {
   approvals=0
 
   for r in $reviews; do
-    review="$(echo "$r" | base64 --decode)"
+    review="$(echo "$r" | base64 -d)"
     rState=$(echo "$review" | jq --raw-output '.state')
 
     if [[ "$rState" == "APPROVED" ]]; then
