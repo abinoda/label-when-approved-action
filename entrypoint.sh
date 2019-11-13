@@ -16,14 +16,8 @@ if [[ -z "$GITHUB_EVENT_PATH" ]]; then
   exit 1
 fi
 
-addLabel=$ADD_LABEL
-if [[ -n "$LABEL_NAME" ]]; then
-  echo "Warning: Plase define the ADD_LABEL variable instead of the deprecated LABEL_NAME."
-  addLabel=$LABEL_NAME
-fi
-
-if [[ -z "$addLabel" ]]; then
-  echo "Set the ADD_LABEL or the LABEL_NAME env variable."
+if [[ -z "$ADD_LABEL" ]]; then
+  echo "Set the ADD_LABEL env variable."
   exit 1
 fi
 
@@ -41,39 +35,41 @@ label_when_approved() {
   reviews=$(echo "$body" | jq --raw-output '.[] | {state: .state} | @base64')
 
   approvals=0
+  totalReviews=0
 
   for r in $reviews; do
     review="$(echo "$r" | base64 -d)"
     rState=$(echo "$review" | jq --raw-output '.state')
 
+    totalReviews=$((totalReviews+1))
+
     if [[ "$rState" == "APPROVED" ]]; then
       approvals=$((approvals+1))
     fi
 
-    echo "${approvals}/${APPROVALS} approvals"
-
-    if [[ "$approvals" == "$APPROVALS" ]]; then
-      echo "Labeling pull request"
-
-      curl -sSL \
-        -H "${AUTH_HEADER}" \
-        -H "${API_HEADER}" \
-        -X POST \
-        -H "Content-Type: application/json" \
-        -d "{\"labels\":[\"${addLabel}\"]}" \
-        "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
-
-      if [[ -n "$REMOVE_LABEL" ]]; then
-          curl -sSL \
-            -H "${AUTH_HEADER}" \
-            -H "${API_HEADER}" \
-            -X DELETE \
-            "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
-      fi
-
-      break
-    fi
   done
+
+  echo "${approvals}/${totalReviews} approvals"
+
+  if [[ "$approvals" -ge "$APPROVALS" ]]; then
+    echo "Labeling pull request as approved"
+
+    curl -sSL \
+      -H "${AUTH_HEADER}" \
+      -H "${API_HEADER}" \
+      -X POST \
+      -H "Content-Type: application/json" \
+      -d "{\"labels\":[\"${ADD_LABEL}\"]}" \
+      "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
+
+    if [[ -n "$REMOVE_LABEL" ]]; then
+        curl -sSL \
+          -H "${AUTH_HEADER}" \
+          -H "${API_HEADER}" \
+          -X DELETE \
+          "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
+    fi
+  fi
 }
 
 if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
