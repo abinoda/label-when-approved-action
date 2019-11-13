@@ -77,3 +77,4 @@ if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
 else
   echo "Ignoring event ${action}/${state}"
 fi
+
