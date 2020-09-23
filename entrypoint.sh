@@ -37,7 +37,8 @@ number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
 label_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
-  body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/${GITHUB_REPOSITORY}/pulls/${number}/reviews?per_page=100")
+  echo "${URI}/${GITHUB_REPOSITORY}/pulls/${number}/reviews?per_page=100"
+  body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/${GITHUB_REPOSITORY}/pulls/${number}/reviews")
   echo "============"
   echo "$body" | jq --raw-output
   echo "============"
