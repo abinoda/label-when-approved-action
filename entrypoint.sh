@@ -43,7 +43,8 @@ echo $action
 echo $number
 echo $state
 
-echo $(jq --raw-output "$GITHUB_EVENT_PATH")
+all=$(echo $(jq --raw-output "$GITHUB_EVENT_PATH" | @base64))
+echo $all | @base64
 
 label_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
