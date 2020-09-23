@@ -27,7 +27,7 @@ if [[ -z "$addLabel" ]]; then
   exit 1
 fi
 
-URI="https://api.github.com/repos/ellevation"
+URI="https://api.github.com/repos"
 API_HEADER="Accept: application/vnd.github.v3+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 
@@ -37,6 +37,7 @@ number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
 label_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
+  echo ${PR_NUMBER}
   echo "${URI}/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews?per_page=100"
   echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews")
