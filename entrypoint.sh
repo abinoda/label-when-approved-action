@@ -39,13 +39,6 @@ action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 state=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
-echo $action
-echo $number
-echo $state
-
-all=$(echo $(jq --raw-output "$GITHUB_EVENT_PATH" | @base64))
-echo $all | @base64
-
 label_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews?per_page=100")
@@ -87,8 +80,4 @@ label_when_approved() {
   done
 }
 
-if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
-  label_when_approved
-else
-  echo "Ignoring event ${action}/${state}"
-fi
+label_when_approved
