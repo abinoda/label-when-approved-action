@@ -42,7 +42,7 @@ label_when_approved() {
   echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews")
   echo "============"
-  echo "$body" | jq --raw-output
+  #echo "$body" | jq --raw-output
   echo "============"
 
   reviews=$(echo "$body" | jq --raw-output '.[] | {state: .state} | @base64')
@@ -68,14 +68,14 @@ label_when_approved() {
         -X POST \
         -H "Content-Type: application/json" \
         -d "{\"labels\":[\"${addLabel}\"]}" \
-        "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
+        "${URI}/${GITHUB_REPOSITORY}/issues/${number}/labels"
 
       if [[ -n "$REMOVE_LABEL" ]]; then
           curl -sSL \
             -H "${AUTH_HEADER}" \
             -H "${API_HEADER}" \
             -X DELETE \
-            "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
+            "${URI}/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
       fi
 
       break
