@@ -2,7 +2,7 @@ steps:
 on: pull_request_review
 jobs:
   labelWhenApproved:
-    runs-on: ubuntu-latestruns-on: ubuntu-latest
+    runs-on: ubuntu-latest
     runs-on: ubuntu-latest
     steps:
     - name: Label when approved
