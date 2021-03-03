@@ -11,13 +11,13 @@ on: pull_request_review
 name: Label approved pull requests
 jobs:
   labelWhenApproved:
-    name: Label when approved
+    name: labelFlow
     runs-on: ubuntu-latest
     steps:
-    - name: Label when approved
+    - name: stepsFlow
       uses: pullreminders/label-when-approved-action@master
       env:
-        APPROVALS: "2"
+        APPROVALS: "1"
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ADD_LABEL: "approved"
         REMOVE_LABEL: "awaiting%20review"
