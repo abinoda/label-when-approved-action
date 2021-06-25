@@ -7,7 +7,7 @@ on:
 jobs:
 
   label-when-approved:
-    name: "Label when approved"
+    name: "Label when approvedd"
     runs-on: ubuntu-latest
     steps:
       - name: "Get information about the original trigger of the run"
