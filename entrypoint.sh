@@ -27,6 +27,12 @@ if [[ -z "$addLabel" ]]; then
   exit 1
 fi
 
+color=$LABEL_COLOR
+if [[ -z "$color" ]]; then
+  echo "Use default color."
+  color=ededed
+fi
+
 URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
@@ -42,6 +48,10 @@ label_when_approved() {
 
   approvals=0
 
+  #Get all labels in current project
+  body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/labels")
+  names=$(echo "$body" | jq --raw-output '.[] | .name')
+
   for r in $reviews; do
     review="$(echo "$r" | base64 -d)"
     rState=$(echo "$review" | jq --raw-output '.state')
@@ -54,6 +64,18 @@ label_when_approved() {
 
     if [[ "$approvals" -ge "$APPROVALS" ]]; then
       echo "Labeling pull request"
+
+      #If label of this name does not exist
+      if [[ !($(echo "$names" | grep -w "$addLabel")) ]]; then
+          echo "Non-Existing!"
+          curl -sSL \
+            -H "${AUTH_HEADER}" \
+            -H "${API_HEADER}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"name\":\"${addLabel}\",\"color\":\"${color}\"}" \
+            "${URI}/repos/${GITHUB_REPOSITORY}/labels"
+      fi
 
       curl -sSL \
         -H "${AUTH_HEADER}" \
