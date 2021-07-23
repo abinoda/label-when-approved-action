@@ -21,6 +21,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ADD_LABEL: "approved"
         REMOVE_LABEL: "awaiting%20review"
+        LABEL_COLOR: "9efc7a"
 ```
 
 ## Demo

@@ -10,7 +10,7 @@ LABEL repository="http://github.com/pullreminders/label-when-approved-action"
 LABEL homepage="http://github.com/pullreminders/label-when-approved-action"
 LABEL maintainer="Abi Noda <abi@pullreminders.com>"
 
-RUN apk add --no-cache bash curl jq
+RUN apk add --no-cache bash curl jq grep
 
 ADD entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
