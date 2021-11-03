@@ -35,6 +35,15 @@ action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 state=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
+# Remove label before checking for approvals
+if [[ -n "$REMOVE_LABEL" ]]; then
+  curl -sSL \
+    -H "${AUTH_HEADER}" \
+    -H "${API_HEADER}" \
+    -X DELETE \
+    "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
+fi
+
 label_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews?per_page=100")
@@ -62,14 +71,6 @@ label_when_approved() {
         -H "Content-Type: application/json" \
         -d "{\"labels\":[\"${addLabel}\"]}" \
         "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
-
-      if [[ -n "$REMOVE_LABEL" ]]; then
-          curl -sSL \
-            -H "${AUTH_HEADER}" \
-            -H "${API_HEADER}" \
-            -X DELETE \
-            "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
-      fi
 
       break
     fi
