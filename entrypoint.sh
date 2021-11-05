@@ -34,6 +34,24 @@ AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 state=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
+user=$(jq --raw-output .pull_request.user.login "$GITHUB_EVENT_PATH")
+
+prepare() {
+  # Try to get the JIRA ticket from the title
+  TASK=$(echo "$title" | grep -E 'CN-[0-9]+' -o)
+
+  # If no JIRA ticket is included, request changes
+  if [[ -z "$TASK" || "$TASK" == " " ]]; then
+    curl -sSL \
+        -H "${AUTH_HEADER}" \
+        -H "${API_HEADER}" \
+        -X POST \
+        -H "Content-Type: application/json" \
+        -d "{\"event\": \"REQUEST_CHANGES\",\"body\": \"@${user} o PR não possui o número do ticket do JIRA, por favor inclua um 'CN-XXXX | ' no início do título do seu PR\"}" \
+        "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews"
+  fi
+}
 
 # Remove label before checking for approvals
 if [[ -n "$REMOVE_LABEL" ]]; then
@@ -90,6 +108,7 @@ label_when_approved() {
 }
 
 if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
+  prepare
   label_when_approved
 else
   echo "Ignoring event ${action}/${state}"
