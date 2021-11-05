@@ -78,7 +78,7 @@ label_when_approved() {
     reviewUser=$(echo "$review" | jq --raw-output '.user')
 
     # Re-request stale reviews
-    if [[ "$reviewState" == "DISMISSED" ]]; then
+    if [[ "$reviewState" == "DISMISSED" && "$reviewUser" != "github-actions" ]]; then
       echo "Dismissed PR from ($reviewUser) found, requesting"
       curl -sSL \
         -H "${AUTH_HEADER}" \
