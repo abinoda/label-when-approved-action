@@ -51,16 +51,16 @@ prepare() {
         -d "{\"event\": \"REQUEST_CHANGES\",\"body\": \"@${user} o PR não possui o número do ticket do JIRA, por favor inclua um 'CN-XXXX | ' no início do título do seu PR\"}" \
         "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews"
   fi
-}
 
-# Remove label before checking for approvals
-if [[ -n "$REMOVE_LABEL" ]]; then
-  curl -sSL \
-    -H "${AUTH_HEADER}" \
-    -H "${API_HEADER}" \
-    -X DELETE \
-    "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
-fi
+  # Remove label before checking for approvals
+  if [[ -n "$REMOVE_LABEL" ]]; then
+    curl -sSL \
+      -H "${AUTH_HEADER}" \
+      -H "${API_HEADER}" \
+      -X DELETE \
+      "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
+  fi
+}
 
 label_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
