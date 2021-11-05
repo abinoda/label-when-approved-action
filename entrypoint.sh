@@ -43,6 +43,7 @@ handle() {
 
   # If no JIRA ticket is included, request changes
   if [[ -z "$TASK" || "$TASK" == " " ]]; then
+    echo "No JIRA ticket found, requesting changes"
     curl -sSL \
         -H "${AUTH_HEADER}" \
         -H "${API_HEADER}" \
@@ -54,6 +55,7 @@ handle() {
 
   # Remove label before checking for approvals
   if [[ -n "$REMOVE_LABEL" ]]; then
+    echo "Label ($REMOVE_LABEL) found, removing"
     curl -sSL \
       -H "${AUTH_HEADER}" \
       -H "${API_HEADER}" \
@@ -77,6 +79,7 @@ label_when_approved() {
 
     # Re-request stale reviews
     if [[ "$reviewState" == "DISMISSED" ]]; then
+      echo "Dismissed PR from ($reviewUser) found, requesting"
       curl -sSL \
         -H "${AUTH_HEADER}" \
         -H "${API_HEADER}" \
@@ -92,7 +95,7 @@ label_when_approved() {
 
     # Apply label if we get enough approvals
     if [[ "$approvalsCounter" -ge "$APPROVALS" ]]; then
-      echo "Labeling pull request"
+      echo "$approvalsCounter/$APPROVALS found, Labeling pull request"
 
       curl -sSL \
         -H "${AUTH_HEADER}" \
