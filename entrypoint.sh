@@ -37,7 +37,7 @@ number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
 user=$(jq --raw-output .pull_request.user.login "$GITHUB_EVENT_PATH")
 
-prepare() {
+handle() {
   # Try to get the JIRA ticket from the title
   TASK=$(echo "$title" | grep -E 'CN-[0-9]+' -o)
 
@@ -107,8 +107,9 @@ label_when_approved() {
   done
 }
 
+handle
+
 if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
-  prepare
   label_when_approved
 else
   echo "Ignoring event ${action}/${state}"
