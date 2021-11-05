@@ -39,7 +39,7 @@ user=$(jq --raw-output .pull_request.user.login "$GITHUB_EVENT_PATH")
 
 handle() {
   # Try to get the JIRA ticket from the title
-  TASK=$(echo "$title" | grep -E 'CN-[0-9]+' -o)
+  TASK=$(echo "$title" | grep -E 'CN-[0-9]+' -o || true)
 
   # If no JIRA ticket is included, request changes
   if [[ -z "$TASK" || "$TASK" == " " ]]; then
