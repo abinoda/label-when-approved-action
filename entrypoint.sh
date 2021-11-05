@@ -54,6 +54,16 @@ label_when_approved() {
   for r in $reviews; do
     review="$(echo "$r" | base64 -d)"
     rState=$(echo "$review" | jq --raw-output '.state')
+    reviewUser=$(echo "$review" | jq --raw-output '.user')
+
+    if [[ "$rState" == "DISMISSED" ]]; then
+      curl -sSL \
+        -H "${AUTH_HEADER}" \
+        -H "${API_HEADER}" \
+        -X POST \
+        "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/requested_reviewers" \
+        -d "{\"reviewers\":[\"$reviewUser\"]}"
+    fi
 
     if [[ "$rState" == "APPROVED" ]]; then
       approvals=$((approvals+1))
