@@ -47,16 +47,18 @@ fi
 label_when_approved() {
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews?per_page=100")
-  reviews=$(echo "$body" | jq --raw-output '.[] | {state: .state, user: .user.login} | @base64' | uniq)
+  reviews=$(echo "$body" | jq --raw-output '.[] | {state: .state, user: .user.login} | @base64' | sort | uniq)
 
-  approvals=0
+  approvalsCounter=0
 
-  for r in $reviews; do
-    review="$(echo "$r" | base64 -d)"
-    rState=$(echo "$review" | jq --raw-output '.state')
+  # Loop for each review of the PR
+  for encodedReview in $reviews; do
+    review="$(echo "$encodedReview" | base64 -d)"
+    reviewState=$(echo "$review" | jq --raw-output '.state')
     reviewUser=$(echo "$review" | jq --raw-output '.user')
 
-    if [[ "$rState" == "DISMISSED" ]]; then
+    # Re-request stale reviews
+    if [[ "$reviewState" == "DISMISSED" ]]; then
       curl -sSL \
         -H "${AUTH_HEADER}" \
         -H "${API_HEADER}" \
@@ -65,13 +67,13 @@ label_when_approved() {
         -d "{\"reviewers\":[\"$reviewUser\"]}"
     fi
 
-    if [[ "$rState" == "APPROVED" ]]; then
-      approvals=$((approvals+1))
+    # Increase approval count
+    if [[ "$reviewState" == "APPROVED" ]]; then
+      approvalsCounter=$((approvalsCounter+1))
     fi
 
-    echo "${approvals}/${APPROVALS} approvals"
-
-    if [[ "$approvals" -ge "$APPROVALS" ]]; then
+    # Apply label if we get enough approvals
+    if [[ "$approvalsCounter" -ge "$APPROVALS" ]]; then
       echo "Labeling pull request"
 
       curl -sSL \
