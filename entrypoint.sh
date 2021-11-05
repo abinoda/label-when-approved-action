@@ -81,8 +81,8 @@ label_when_approved() {
         -H "${AUTH_HEADER}" \
         -H "${API_HEADER}" \
         -X POST \
-        "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/requested_reviewers" \
-        -d "{\"reviewers\":[\"$reviewUser\"]}"
+        -d "{\"reviewers\":[\"$reviewUser\"]}" \
+        "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/requested_reviewers"
     fi
 
     # Increase approval count
