@@ -34,37 +34,18 @@ AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 action=$(jq --raw-output .action "$GITHUB_EVENT_PATH")
 state=$(jq --raw-output .review.state "$GITHUB_EVENT_PATH")
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
-user=$(jq --raw-output .pull_request.user.login "$GITHUB_EVENT_PATH")
 
-handle() {
-  # Try to get the JIRA ticket from the title
-  TASK=$(echo "$title" | grep -E 'CN-[0-9]+' -o || true)
+# Remove label before checking for approvals
+if [[ -n "$REMOVE_LABEL" ]]; then
+  echo "Label ($REMOVE_LABEL) found, removing"
+  curl -sSL \
+    -H "${AUTH_HEADER}" \
+    -H "${API_HEADER}" \
+    -X DELETE \
+    "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
+fi
 
-  # If no JIRA ticket is included, request changes
-  if [[ -z "$TASK" || "$TASK" == " " ]]; then
-    echo "No JIRA ticket found, requesting changes"
-    curl -sSL \
-        -H "${AUTH_HEADER}" \
-        -H "${API_HEADER}" \
-        -X POST \
-        -H "Content-Type: application/json" \
-        -d "{\"event\": \"REQUEST_CHANGES\",\"body\": \"@${user} o PR não possui o número do ticket do JIRA, por favor inclua um 'CN-XXXX | ' no início do título do seu PR\"}" \
-        "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews"
-  fi
-
-  # Remove label before checking for approvals
-  if [[ -n "$REMOVE_LABEL" ]]; then
-    echo "Label ($REMOVE_LABEL) found, removing"
-    curl -sSL \
-      -H "${AUTH_HEADER}" \
-      -H "${API_HEADER}" \
-      -X DELETE \
-      "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/${REMOVE_LABEL}"
-  fi
-}
-
-label_when_approved() {
+if [[ "$state" == "approved" ]]; then
   # https://developer.github.com/v3/pulls/reviews/#list-reviews-on-a-pull-request
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/reviews?per_page=100")
   reviews=$(echo "$body" | jq --raw-output '.[] | {state: .state, user: .user.login} | @base64' | sort | uniq)
@@ -75,18 +56,6 @@ label_when_approved() {
   for encodedReview in $reviews; do
     review="$(echo "$encodedReview" | base64 -d)"
     reviewState=$(echo "$review" | jq --raw-output '.state')
-    reviewUser=$(echo "$review" | jq --raw-output '.user')
-
-    # Re-request stale reviews
-    if [[ "$reviewState" == "DISMISSED" && "$reviewUser" != "github-actions" ]]; then
-      echo "Dismissed PR from ($reviewUser) found, requesting"
-      curl -sSL \
-        -H "${AUTH_HEADER}" \
-        -H "${API_HEADER}" \
-        -X POST \
-        -d "{\"reviewers\":[\"$reviewUser\"]}" \
-        "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}/requested_reviewers"
-    fi
 
     # Increase approval count
     if [[ "$reviewState" == "APPROVED" ]]; then
@@ -108,12 +77,6 @@ label_when_approved() {
       break
     fi
   done
-}
-
-handle
-
-if [[ "$action" == "submitted" ]] && [[ "$state" == "approved" ]]; then
-  label_when_approved
 else
   echo "Ignoring event ${action}/${state}"
 fi
