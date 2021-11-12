@@ -1,0 +1,6 @@
+steps: exempl
+  uses:
+    env:
+      APPROVALS "1"
+      GITHUB_TOKEN
+      ADD_LABEL
