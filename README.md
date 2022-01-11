@@ -17,8 +17,8 @@ jobs:
     - name: Label when approved
       uses: pullreminders/label-when-approved-action@master
       env:
-        APPROVALS: "2"
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        APPROVALS: "1"
+        GITHUB_TOKEN: ${{ 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 }}
         ADD_LABEL: "approved"
         REMOVE_LABEL: "awaiting%20review"
 ```
