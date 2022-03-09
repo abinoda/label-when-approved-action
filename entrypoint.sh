@@ -18,7 +18,7 @@ fi
 
 addLabel=$ADD_LABEL
 if [[ -n "$LABEL_NAME" ]]; then
-  echo "Warning: Plase define the ADD_LABEL variable instead of the deprecated LABEL_NAME."
+  echo "Warning: Please define the ADD_LABEL variable instead of the deprecated LABEL_NAME."
   addLabel=$LABEL_NAME
 fi
 
