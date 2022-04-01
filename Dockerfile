@@ -1,4 +1,4 @@
-FROM alpine:3.10.3
+FROM alpine:3.10.3 
 
 LABEL "com.github.actions.name"="Label approved pull requests"
 LABEL "com.github.actions.description"="Auto-label pull requests that have a specified number of approvals"
@@ -13,4 +13,6 @@ LABEL maintainer="Abi Noda <abi@pullreminders.com>"
 RUN apk add --no-cache bash curl jq
 
 ADD entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]  
+
+
