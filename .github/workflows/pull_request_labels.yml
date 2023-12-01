@@ -1,0 +1,19 @@
+name: "PR: label changes"
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: "Add Labels"
+        uses: actions/labeler@v4
+        with:
+          configuration-path: ".github/pr-labels.yml"
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          sync-labels: false #setting this to true will delete labels that are not specified in pr-labeler.yml (ie manually set labels or dependabot labels)
