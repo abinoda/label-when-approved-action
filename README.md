@@ -4,7 +4,7 @@ This GitHub Action applies a label of your choice to pull requests that reach a 
 
 ## Usage
 
-This Action subscribes to [Pull request review events](https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent) which fire whenever pull requests are approved. The action requires two environment variables – the label name to add and the number of required approvals. Optionally you can provide a label name to remove.
+This Action subscribes to [Pull request review events](https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent) which fire whenever pull requests are approved. The action requires two environment variables, – the label name to add and the number of required approvals. Optionally you can provide a label name to remove.
 
 ```workflow
 on: pull_request_review
